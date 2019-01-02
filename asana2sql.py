@@ -5,7 +5,7 @@ import pyodbc
 import requests
 
 from asana2sql.fields import default_fields
-from asana2sql.project import Project
+from asana2sql.Project import Project
 from asana2sql.workspace import Workspace
 from asana2sql.db_wrapper import DatabaseWrapper
 from asana import Client, session
