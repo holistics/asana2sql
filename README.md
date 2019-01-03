@@ -15,6 +15,65 @@ It is very configurable.  While the project includes a script that uses a
 default set of fields that should cover most needs, new fields can be easily
 written to support custom database types or compute data from one or more fields.
 
+# Holistics configuration
+## Postgresql ODBC
+### Install
+* Mac: install via Homebrew
+
+```
+brew install psqlodbc
+```
+
+* Ubuntu:
+
+```
+apt-get install odbc-postgresql
+```
+
+### Config ODBC
+
+Edit file `odbcinst.ini` (can find it via command `odbc_config --odbcinstini`,
+usually at `/etc/odbcinst.ini` or `/usr/local/etc/odbcinst.ini`) to configure the Postgresql driver,
+would look like this:
+
+```
+[PostgreSQL]
+Description = ODBC for PostgreSQL
+Driver      = /usr/local/lib/psqlodbcw.so
+Setup       = /usr/local/lib/psqlodbca.so
+FileUsage = 1
+```
+
+### Validate ODBC configuration
+
+```
+odbcinst -q -d
+```
+
+Would list all your configuration
+
+## Usage
+### Create tables
+
+First time running
+```
+python asana2sql.py --access_token <ASANA_ACCESS_TOKEN> --project_id <PROJECT_ID> --odbc_string 'DRIVER={PostgreSQL};Server=IP_ADDRESS;Port=5432;Database=DB_NAME;Uid=DB_USER;Pwd=DB_PASSWORD;' create
+```
+
+### Export data
+First time export
+
+```
+python asana2sql.py --access_token <ASANA_ACCESS_TOKEN> --project_id <PROJECT_ID> --odbc_string 'DRIVER={PostgreSQL};Server=IP_ADDRESS;Port=5432;Database=DB_NAME;Uid=DB_USER;Pwd=DB_PASSWORD;' export
+```
+
+### Synchronize
+Run this to sync data
+
+```
+python asana2sql.py --access_token <ASANA_ACCESS_TOKEN> --project_id <PROJECT_ID> --odbc_string 'DRIVER={PostgreSQL};Server=IP_ADDRESS;Port=5432;Database=DB_NAME;Uid=DB_USER;Pwd=DB_PASSWORD;' synchronize
+```
+
 ## Prerequisites
 
 asana2sql uses [PyODBC](https://github.com/mkleehammer/pyodbc) for database

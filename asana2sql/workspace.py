@@ -3,65 +3,65 @@ from asana2sql.cache import Cache
 PROJECTS_TABLE_NAME = "projects"
 CREATE_PROJECTS_TABLE = (
         """CREATE TABLE IF NOT EXISTS "{table_name}" (
-        id INTEGER NOT NULL PRIMARY KEY,
+        id BIGINT NOT NULL PRIMARY KEY,
         name VARCHAR(1024));
         """)
 SELECT_PROJECTS = """SELECT * FROM "{table_name}";"""
 INSERT_PROJECT = (
-        """INSERT OR REPLACE INTO "{table_name}" VALUES (?, ?);""")
+        """INSERT INTO "{table_name}" VALUES (?, ?) ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name;""")
 
 PROJECT_MEMBERSHIPS_TABLE_NAME = "project_memberships"
 CREATE_PROJECT_MEMBERSHIPS_TABLE = (
         """CREATE TABLE IF NOT EXISTS "{table_name}" (
-        task_id INTEGER NOT NULL,
-        project_id INTEGER NOT NULL,
+        task_id BIGINT NOT NULL,
+        project_id BIGINT NOT NULL,
         PRIMARY KEY (task_id, project_id));
         """)
 SELECT_PROJECT_MEMBERSHIPS = (
         """SELECT project_id FROM "{table_name}" WHERE task_id = ?;""")
 INSERT_PROJECT_MEMBERSHIP = (
-        """INSERT OR REPLACE INTO "{table_name}" VALUES (?, ?);""")
+        """INSERT INTO "{table_name}" VALUES (?, ?) ON CONFLICT DO NOTHING;""")
 DELETE_PROJECT_MEMBERSHIP = (
         """DELETE FROM "{table_name}" WHERE task_id = ? and project_id = ?;""")
 
 USERS_TABLE_NAME = "users"
 CREATE_USERS_TABLE = (
         """CREATE TABLE IF NOT EXISTS "{table_name}" (
-        id INTEGER NOT NULL PRIMARY KEY,
+        id BIGINT NOT NULL PRIMARY KEY,
         name VARCHAR(1024));
         """)
 SELECT_USERS = 'SELECT * FROM "{table_name}";';
 INSERT_USER = (
-        """INSERT OR REPLACE INTO "{table_name}" VALUES (?, ?);""")
+        """INSERT INTO "{table_name}" VALUES (?, ?) ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name;""")
 
 FOLLOWERS_TABLE_NAME = "followers"
 CREATE_FOLLOWERS_TABLE = (
         """CREATE TABLE IF NOT EXISTS "{table_name}" (
-        task_id INTEGER NOT NULL,
-        user_id INTEGER NOT NULL,
+        task_id BIGINT NOT NULL,
+        user_id BIGINT NOT NULL,
         PRIMARY KEY (task_id, user_id));
         """)
 SELECT_FOLLOWERS = 'SELECT * from "{table_name}" WHERE task_id = ?;';
 INSERT_FOLLOWER = (
-        """INSERT OR REPLACE INTO "{table_name}" VALUES (?, ?);""")
+        """INSERT INTO "{table_name}" VALUES (?, ?) ON CONFLICT DO NOTHING;""")
 DELETE_FOLLOWER = (
         """DELETE FROM "{table_name}" WHERE user_id = ? AND task_id = ?;""")
 
 CUSTOM_FIELDS_TABLE_NAME = "custom_fields"
 CREATE_CUSTOM_FIELDS_TABLE = (
         """CREATE TABLE IF NOT EXISTS "{table_name}" (
-        id INTEGER NOT NULL PRIMARY KEY,
+        id BIGINT NOT NULL PRIMARY KEY,
         name VARCHAR(1024),
-        type INTEGER NOT NULL);
+        type TEXT NOT NULL);
         """)
 INSERT_CUSTOM_FIELD = (
-        """INSERT OR REPLACE INTO "{table_name}" VALUES (?, ?, ?);""")
+        """INSERT INTO "{table_name}" VALUES (?, ?, ?) ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name, type=EXCLUDED.type;""")
 
 CUSTOM_FIELD_ENUM_VALUES_TABLE_NAME = "custom_field_enum_values"
 CREATE_CUSTOM_FIELD_ENUM_VALUES_TABLE = (
         """CREATE TABLE IF NOT EXISTS "{table_name}" (
-        custom_field_id INTEGER NOT NULL,
-        id INTEGER NOT NULL,
+        custom_field_id BIGINT NOT NULL,
+        id BIGINT NOT NULL,
         name VARCHAR(1024),
         enabled BOOLEAN NOT NULL,
         color VARCHAR(64) NOT NULL,
@@ -71,24 +71,24 @@ SELECT_CUSTOM_FIELD_ENUM_VALUES = """SELECT * FROM {table_name};"""
 SELECT_CUSTOM_FIELD_ENUM_VALUES_FOR_CUSTOM_FIELD = (
         """SELECT * FROM {table_name} WHERE custom_field_id = ?;""")
 INSERT_CUSTOM_FIELD_ENUM_VALUE = (
-        """INSERT OR REPLACE INTO "{table_name}" VALUES (?, ?, ?, ?, ?);""")
+        """INSERT INTO "{table_name}" VALUES (?, ?, ?, ?, ?) ON CONFLICT ON CONSTRAINT custom_field_enum_values_pkey DO UPDATE SET name=EXCLUDED.name, enabled=EXCLUDED.enabled, color=EXCLUDED.color;""")
 DELETE_CUSTOM_FIELD_ENUM_VALUE = (
         """DELETE FROM "{table_name}" WHERE id = ?;""")
 
 CUSTOM_FIELD_VALUES_TABLE_NAME = "custom_field_values"
 CREATE_CUSTOM_FIELD_VALUES_TABLE = (
         """CREATE TABLE IF NOT EXISTS "{table_name}" (
-        task_id INTEGER NOT NULL,
-        custom_field_id INTEGER NOT NULL,
+        task_id BIGINT NOT NULL,
+        custom_field_id BIGINT NOT NULL,
         text_value TEXT,
         number_value FLOAT,
-        enum_value INTEGER,
+        enum_value BIGINT,
         PRIMARY KEY (task_id, custom_field_id));
         """)
 SELECT_CUSTOM_FIELD_VALUES_FOR_TASK = (
         "SELECT * FROM {table_name} WHERE task_id = ?;")
 INSERT_CUSTOM_FIELD_VALUE = (
-        "INSERT OR REPLACE INTO {table_name} VALUES (?, ?, ?, ?, ?);")
+        "INSERT INTO {table_name} VALUES (?, ?, ?, ?, ?) ON CONFLICT ON CONSTRAINT custom_field_values_pkey DO UPDATE SET text_value=EXCLUDED.text_value, number_value=EXCLUDED.number_value, enum_value=EXCLUDED.enum_value;")
 DELETE_CUSTOM_FIELD_VALUE = (
         "DELETE FROM {table_name} WHERE task_id = ? AND custom_field_id = ?;")
 
