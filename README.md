@@ -49,8 +49,30 @@ FileUsage = 1
 ```
 odbcinst -q -d
 ```
+
 Would list all your configuration
 
+## Usage
+### Create tables
+
+First time running
+```
+python asana2sql.py --access_token <ASANA_ACCESS_TOKEN> --project_id <PROJECT_ID> --odbc_string 'DRIVER={PostgreSQL};Server=IP_ADDRESS;Port=5432;Database=DB_NAME;Uid=DB_USER;Pwd=DB_PASSWORD;' create
+```
+
+### Export data
+First time export
+
+```
+python asana2sql.py --access_token <ASANA_ACCESS_TOKEN> --project_id <PROJECT_ID> --odbc_string 'DRIVER={PostgreSQL};Server=IP_ADDRESS;Port=5432;Database=DB_NAME;Uid=DB_USER;Pwd=DB_PASSWORD;' export
+```
+
+### Synchronize
+Run this to sync data
+
+```
+python asana2sql.py --access_token <ASANA_ACCESS_TOKEN> --project_id <PROJECT_ID> --odbc_string 'DRIVER={PostgreSQL};Server=IP_ADDRESS;Port=5432;Database=DB_NAME;Uid=DB_USER;Pwd=DB_PASSWORD;' synchronize
+```
 
 ## Prerequisites
 
