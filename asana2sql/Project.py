@@ -6,16 +6,16 @@ from asana2sql import fields
 from asana2sql import workspace
 
 CREATE_TABLE_TEMPLATE = (
-        """CREATE TABLE IF NOT EXISTS "{table_name}" ({columns});""")
+        """CREATE TABLE IF NOT EXISTS {table_name} ({columns});""")
 
 INSERT_OR_REPLACE_TEMPLATE = (
-        """INSERT OR REPLACE INTO "{table_name}" ({columns}) VALUES ({values});""")
+        """INSERT INTO {table_name} ({columns}) VALUES ({values}) ON CONFLICT (id) DO UPDATE SET {updates};""")
 
 SELECT_TEMPLATE = (
-        """SELECT {columns} FROM "{table_name}";""")
+        """SELECT {columns} FROM {table_name};""")
 
 DELETE_TEMPLATE = (
-        """DELETE FROM "{table_name}" WHERE {id_column} = ?;""")
+        """DELETE FROM {table_name} WHERE {id_column} = ?;""")
 
 class NoSuchProjectException(Exception):
     def __init__(self, project_id):
@@ -85,19 +85,18 @@ class Project(object):
         self._db_client.write(sql)
 
     def export(self):
+        print("Exporting...")
         for task in self._tasks():
             self.insert_or_replace(task)
+        print("Done!")
 
     def insert_or_replace(self, task):
         columns = ",".join(field.sql_name for field in self._direct_fields)
         values = ",".join("?" for field in self._direct_fields)
+        updates = ",".join(field.sql_name + "=EXCLUDED." + field.sql_name for field in self._direct_fields)
         params = [field.get_data_from_task(task) for field in self._direct_fields]
-        self._db_client.write(
-                INSERT_OR_REPLACE_TEMPLATE.format(
-                    table_name=self.table_name(),
-                    columns=columns,
-                    values=values),
-                *params)
+        sql = INSERT_OR_REPLACE_TEMPLATE.format(table_name=self.table_name(), columns=columns, values=values, updates=updates)
+        self._db_client.write(sql, *params)
 
         for field in self._indirect_fields:
             field.get_data_from_task(task)
@@ -111,6 +110,7 @@ class Project(object):
                 task_id)
 
     def synchronize(self):
+        print("Synchronizing...")
         db_task_ids = self.db_task_ids()
         asana_task_ids = self.asana_task_ids()
 
@@ -121,6 +121,7 @@ class Project(object):
 
         for id_to_remove in ids_to_remove:
             self.delete(id_to_remove)
+        print("Done!")
 
     def asana_task_ids(self):
         return set(task.get("id") for task in self._tasks())
