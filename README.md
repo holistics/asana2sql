@@ -52,6 +52,11 @@ odbcinst -q -d
 
 Would list all your configuration
 
+## Install Asana Python module
+```
+pip install pyodbc asana
+```
+
 ## Usage
 ### Create tables
 
