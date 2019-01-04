@@ -27,7 +27,7 @@ brew install psqlodbc
 * Ubuntu:
 
 ```
-apt-get install odbc-postgresql
+apt-get install odbc-postgresql unixodbc unixodbc-dev
 ```
 
 ### Config ODBC
